@@ -61,6 +61,17 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <Link
+            href="/login"
+            className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors text-white"
+            aria-label="Login ou Cadastro"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </Link>
+
+          <Link
             href="/carrinho"
             className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg bg-[var(--fla-red)] text-white hover:bg-[var(--fla-red-light)] transition-all duration-300 hover:shadow-[0_4px_20px_rgba(212,23,30,0.4)]"
           >
