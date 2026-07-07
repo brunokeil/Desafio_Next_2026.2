@@ -5,10 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 const navLinks = [
-  { label: "Início", href: "#hero" },
-  { label: "Produtos", href: "#produtos" },
-  { label: "Sobre Nós", href: "#sobre" },
-  { label: "Contato", href: "#contato" },
+  { label: "Início", href: "/" },
+  { label: "Produtos", href: "/produtos" },
+  { label: "Sobre Nós", href: "/#sobre" },
+  { label: "Contato", href: "/#contato" },
 ];
 
 export default function Navbar() {
@@ -31,7 +31,7 @@ export default function Navbar() {
       id="navbar"
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        <Link href="#hero" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group">
           <div className="relative w-10 h-10 rounded-lg overflow-hidden transition-transform duration-300 group-hover:scale-110">
             <Image
               src="/logo.jpg"
@@ -60,8 +60,8 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <a
-            href="#produtos"
+          <Link
+            href="/carrinho"
             className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg bg-[var(--fla-red)] text-white hover:bg-[var(--fla-red-light)] transition-all duration-300 hover:shadow-[0_4px_20px_rgba(212,23,30,0.4)]"
           >
             <svg
@@ -78,8 +78,8 @@ export default function Navbar() {
               <circle cx="20" cy="21" r="1" />
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
-            Comprar
-          </a>
+            Carrinho
+          </Link>
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -122,13 +122,13 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
-          <a
-            href="#produtos"
+          <Link
+            href="/carrinho"
             onClick={() => setMobileOpen(false)}
             className="mt-2 px-4 py-3 text-sm font-semibold text-center rounded-lg bg-[var(--fla-red)] text-white"
           >
-            Comprar Agora
-          </a>
+            Carrinho
+          </Link>
         </div>
       </div>
     </nav>
