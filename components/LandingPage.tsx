@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { BsCheckCircle, BsLightningCharge, BsShieldLock, BsArrowCounterclockwise } from "react-icons/bs";
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -222,7 +224,7 @@ export default function LandingPage() {
                 : "opacity-0"
             }`}
           >
-            <a href="#produtos" className="btn-primary">
+            <Link href="/produtos" className="btn-primary">
               <span className="flex items-center gap-2">
                 Ver Produtos
                 <svg
@@ -239,7 +241,7 @@ export default function LandingPage() {
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
               </span>
-            </a>
+            </Link>
             <a href="#sobre" className="btn-secondary">
               Conheça a História
             </a>
@@ -364,7 +366,7 @@ export default function LandingPage() {
           </div>
 
           <div className="text-center mt-12">
-            <a href="#" className="btn-secondary">
+            <Link href="/produtos" className="btn-secondary">
               Ver Todos os Produtos
               <svg
                 width="16"
@@ -379,7 +381,7 @@ export default function LandingPage() {
                 <line x1="5" y1="12" x2="19" y2="12" />
                 <polyline points="12 5 19 12 12 19" />
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -465,22 +467,22 @@ export default function LandingPage() {
                   {
                     title: "Produtos Oficiais",
                     desc: "Todos os itens são licenciados e com certificação de autenticidade.",
-                    icon: "✓",
+                    icon: <BsCheckCircle size={20} />,
                   },
                   {
                     title: "Entrega Rápida",
                     desc: "Enviamos para todo o Brasil com rastreamento em tempo real.",
-                    icon: "⚡",
+                    icon: <BsLightningCharge size={20} />,
                   },
                   {
                     title: "Pagamento Seguro",
                     desc: "PIX, cartão e boleto com criptografia de ponta a ponta.",
-                    icon: "🔒",
+                    icon: <BsShieldLock size={20} />,
                   },
                   {
                     title: "Troca Garantida",
                     desc: "30 dias para trocar ou devolver, sem complicação.",
-                    icon: "↩",
+                    icon: <BsArrowCounterclockwise size={20} />,
                   },
                 ].map((feature) => (
                   <div
@@ -563,7 +565,7 @@ export default function LandingPage() {
               coleção completa e encontre o produto perfeito para você.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#produtos" className="btn-primary">
+              <Link href="/produtos" className="btn-primary">
                 <span className="flex items-center gap-2">
                   Explorar Loja
                   <svg
@@ -580,7 +582,7 @@ export default function LandingPage() {
                     <polyline points="12 5 19 12 12 19" />
                   </svg>
                 </span>
-              </a>
+              </Link>
               <a href="#" className="btn-secondary">
                 <svg
                   width="16"
