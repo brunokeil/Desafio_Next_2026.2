@@ -509,20 +509,20 @@ export default function LandingPage() {
               <div className="relative w-full max-w-sm">
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[var(--fla-red)]/10 to-[var(--fla-gold)]/5 blur-3xl scale-110" />
 
-                <div className="glass-card overflow-hidden animate-float relative">
+                <Link href="/produtos/1" className="glass-card overflow-hidden animate-float relative block cursor-pointer group hover:border-[var(--fla-red)] transition-colors">
                   <div className="relative aspect-[3/4]">
                     <Image
                       src="/product-1.jpg"
                       alt="Camisa Oficial"
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className="absolute bottom-6 left-6 right-6">
                       <p className="text-xs text-[var(--fla-gold)] font-semibold uppercase tracking-wider mb-1">
                         Destaque da Temporada
                       </p>
-                      <h3 className="text-xl font-bold text-white mb-2">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[var(--fla-red-light)] transition-colors">
                         Camisa Oficial I 2025
                       </h3>
                       <p className="text-2xl font-black gradient-text">
@@ -530,7 +530,7 @@ export default function LandingPage() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
