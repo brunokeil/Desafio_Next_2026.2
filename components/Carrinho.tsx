@@ -9,10 +9,37 @@ import { useCart } from "@/context/CartContext";
 
 export default function Carrinho() {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
+  const [couponInput, setCouponInput] = useState("");
+  const [activeCoupon, setActiveCoupon] = useState<{code: string, discountPct: number, freeShipping: boolean} | null>(null);
+  const [couponError, setCouponError] = useState("");
+
+  const handleApplyCoupon = () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+
+    if (code === "FLA10") {
+      setActiveCoupon({ code, discountPct: 10, freeShipping: false });
+      setCouponError("");
+    } else if (code === "FRETEGRATIS") {
+      setActiveCoupon({ code, discountPct: 0, freeShipping: true });
+      setCouponError("");
+    } else {
+      setActiveCoupon(null);
+      setCouponError("Cupom inválido ou expirado");
+    }
+  };
+  
+  const removeCoupon = () => {
+    setActiveCoupon(null);
+    setCouponInput("");
+    setCouponError("");
+  };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const frete = cartItems.length > 0 ? 29.90 : 0;
-  const total = subtotal + frete;
+  const baseFrete = cartItems.length > 0 ? 29.90 : 0;
+  const frete = activeCoupon?.freeShipping ? 0 : baseFrete;
+  const discountAmount = activeCoupon?.discountPct ? (subtotal * activeCoupon.discountPct) / 100 : 0;
+  const total = subtotal - discountAmount + frete;
 
   return (
     <main className="flex-1 bg-black text-white pt-32 pb-24 min-h-screen">
@@ -125,18 +152,42 @@ export default function Carrinho() {
             <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 sticky top-32">
               <h2 className="text-xl font-bold text-white mb-6">Resumo do pedido</h2>
               
-              <div className="flex gap-2 mb-8">
-                <div className="relative flex-1">
-                  <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Cupom de desconto" 
-                    className="w-full bg-black border border-zinc-800 text-white pl-11 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:border-red-600 transition-colors"
-                  />
-                </div>
-                <button className="px-5 py-3 border border-zinc-800 rounded-xl text-sm font-medium text-white hover:bg-zinc-800 transition-colors">
-                  Aplicar
-                </button>
+              <div className="flex flex-col gap-2 mb-8">
+                {activeCoupon ? (
+                  <div className="flex items-center justify-between bg-zinc-800/50 border border-zinc-700/50 p-4 rounded-xl animate-fade-in">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-green-500/20 p-2 rounded-lg text-green-500">
+                        <Tag className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="text-sm font-bold text-white block">{activeCoupon.code}</span>
+                        <span className="text-xs text-zinc-400">Cupom aplicado</span>
+                      </div>
+                    </div>
+                    <button onClick={removeCoupon} className="text-xs text-red-500 hover:text-red-400 font-semibold px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors">
+                      Remover
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                      <input 
+                        type="text" 
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                        placeholder="Cupom de desconto" 
+                        className="w-full bg-black border border-zinc-800 text-white pl-11 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:border-red-600 transition-colors uppercase"
+                      />
+                    </div>
+                    <button onClick={handleApplyCoupon} className="px-5 py-3 border border-zinc-800 rounded-xl text-sm font-medium text-white hover:bg-zinc-800 transition-colors">
+                      Aplicar
+                    </button>
+                  </div>
+                )}
+                {couponError && <p className="text-red-500 text-xs px-2 mt-1 animate-fade-in">{couponError}</p>}
+                {!couponError && !activeCoupon && <p className="text-zinc-500 text-xs px-2 mt-1">Dica: tente FLA10 ou FRETEGRATIS</p>}
               </div>
 
               <div className="flex flex-col gap-4 mb-8">
@@ -144,9 +195,19 @@ export default function Carrinho() {
                   <span>Subtotal</span>
                   <span className="text-white">R$ {subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
+                {activeCoupon?.discountPct ? (
+                  <div className="flex justify-between text-green-500 text-sm font-medium animate-fade-in">
+                    <span>Desconto ({activeCoupon.discountPct}%)</span>
+                    <span>- R$ {discountAmount.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                ) : null}
                 <div className="flex justify-between text-zinc-400 text-sm">
                   <span>Frete</span>
-                  <span className="text-white">R$ {frete.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  {activeCoupon?.freeShipping ? (
+                    <span className="text-green-500 font-medium animate-fade-in">Grátis</span>
+                  ) : (
+                    <span className="text-white">R$ {frete.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  )}
                 </div>
               </div>
 
