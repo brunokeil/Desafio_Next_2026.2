@@ -5,57 +5,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { Trash2, Plus, Minus, Tag, ArrowRight } from "lucide-react";
 
-const initialCart = [
-  {
-    id: 1,
-    category: "CAMISAS",
-    name: "Camisa Oficial I 2025",
-    size: "M",
-    price: 349.9,
-    quantity: 1,
-    image: "/product-1.jpg",
-  },
-  {
-    id: 2,
-    category: "AGASALHOS",
-    name: "Agasalho Treino Rubro-Negro",
-    size: "G",
-    price: 499.9,
-    quantity: 2,
-    image: "/product-3.jpg",
-  },
-  {
-    id: 3,
-    category: "ACESSÓRIOS",
-    name: "Boné Trucker Rubro-Negro",
-    size: "Único",
-    price: 129.9,
-    quantity: 1,
-    image: "/product-2.jpg",
-  },
-];
+import { useCart } from "@/context/CartContext";
 
 export default function Carrinho() {
-  const [cartItems, setCartItems] = useState(initialCart);
-  
-  const handleQuantity = (id: number, delta: number) => {
-    setCartItems(items =>
-      items.map(item => {
-        if (item.id === id) {
-          const newQ = Math.max(1, item.quantity + delta);
-          return { ...item, quantity: newQ };
-        }
-        return item;
-      })
-    );
-  };
-
-  const handleRemove = (id: number) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const frete = 29.90;
+  const frete = cartItems.length > 0 ? 29.90 : 0;
   const total = subtotal + frete;
 
   return (
@@ -77,9 +33,19 @@ export default function Carrinho() {
         <div className="flex flex-col lg:flex-row gap-10">
           
           <div className="flex-1 flex flex-col gap-4">
-            {cartItems.map(item => (
+            {cartItems.length === 0 ? (
+              <div className="text-center py-12 bg-zinc-900/40 border border-zinc-800 rounded-2xl">
+                <p className="text-zinc-400 mb-4">Seu carrinho está vazio.</p>
+                <Link 
+                  href="/produtos" 
+                  className="inline-flex items-center justify-center px-6 py-3 border border-zinc-800 rounded-full text-sm font-medium text-white hover:bg-zinc-900 transition-colors"
+                >
+                  Ir para loja
+                </Link>
+              </div>
+            ) : cartItems.map(item => (
               <div 
-                key={item.id} 
+                key={`${item.id}-${item.size}`}
                 className="flex items-center gap-6 p-4 md:p-6 bg-zinc-900/40 border border-zinc-800 rounded-2xl relative"
               >
                 <div className="relative w-24 h-24 md:w-32 md:h-32 bg-zinc-900 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center p-2">
@@ -108,7 +74,7 @@ export default function Carrinho() {
                     </div>
                     
                     <button 
-                      onClick={() => handleRemove(item.id)}
+                      onClick={() => removeFromCart(item.id, item.size)}
                       className="text-zinc-500 hover:text-red-500 transition-colors p-2"
                       title="Remover"
                     >
@@ -119,7 +85,7 @@ export default function Carrinho() {
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center gap-4 bg-black border border-zinc-800 rounded-full px-2 py-1">
                       <button 
-                        onClick={() => handleQuantity(item.id, -1)}
+                        onClick={() => updateQuantity(item.id, item.size, -1)}
                         className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
                       >
                         <Minus className="w-4 h-4" />
@@ -128,7 +94,7 @@ export default function Carrinho() {
                         {item.quantity}
                       </span>
                       <button 
-                        onClick={() => handleQuantity(item.id, 1)}
+                        onClick={() => updateQuantity(item.id, item.size, 1)}
                         className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
                       >
                         <Plus className="w-4 h-4" />
@@ -143,14 +109,16 @@ export default function Carrinho() {
               </div>
             ))}
 
-            <div className="mt-4">
-              <Link 
-                href="/produtos" 
-                className="inline-flex items-center justify-center px-6 py-3 border border-zinc-800 rounded-full text-sm font-medium text-white hover:bg-zinc-900 transition-colors"
-              >
-                Continuar comprando
-              </Link>
-            </div>
+            {cartItems.length > 0 && (
+              <div className="mt-4">
+                <Link 
+                  href="/produtos" 
+                  className="inline-flex items-center justify-center px-6 py-3 border border-zinc-800 rounded-full text-sm font-medium text-white hover:bg-zinc-900 transition-colors"
+                >
+                  Continuar comprando
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="w-full lg:w-[400px]">

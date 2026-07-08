@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Heart, ShoppingBag, Truck, ArrowLeft, Check, Plus, Minus, Star } from "lucide-react";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 interface Product {
   id: number;
@@ -19,6 +20,7 @@ export default function ProductClient({ product }: { product: Product }) {
   const [selectedSize, setSelectedSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const { addToCart } = useCart();
 
   const [cep, setCep] = useState("");
   const [shippingData, setShippingData] = useState<{ address: string; price: number; days: number } | null>(null);
@@ -65,6 +67,15 @@ export default function ProductClient({ product }: { product: Product }) {
   const SIZES = ["P", "M", "G", "GG", "XG"];
 
   const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      category: product.category,
+      name: product.name,
+      size: selectedSize,
+      price: parseFloat(product.price.replace("R$ ", "").replace(".", "").replace(",", ".")),
+      quantity: quantity,
+      image: product.image,
+    });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };

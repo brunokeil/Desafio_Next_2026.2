@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   { label: "Início", href: "/" },
@@ -14,6 +15,9 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { cartItems } = useCart();
+  
+  const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -89,7 +93,7 @@ export default function Navbar() {
               <circle cx="20" cy="21" r="1" />
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
             </svg>
-            Carrinho
+            Carrinho {cartItemCount > 0 && `(${cartItemCount})`}
           </Link>
 
           <button
@@ -138,7 +142,7 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             className="mt-2 px-4 py-3 text-sm font-semibold text-center rounded-lg bg-[var(--fla-red)] text-white"
           >
-            Carrinho
+            Carrinho {cartItemCount > 0 && `(${cartItemCount})`}
           </Link>
         </div>
       </div>
