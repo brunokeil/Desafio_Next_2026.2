@@ -9,7 +9,7 @@ const navLinks = [
   { label: "Início", href: "/" },
   { label: "Produtos", href: "/produtos" },
   { label: "Sobre Nós", href: "/#sobre" },
-  { label: "Contato", href: "/#contato" },
+  { label: "Contato", href: "/contato" },
 ];
 
 export default function Navbar() {
@@ -41,6 +41,7 @@ export default function Navbar() {
               src="/logo.jpg"
               alt="Nação Rubro-Negra"
               fill
+              sizes="40px"
               className="object-cover"
             />
           </div>

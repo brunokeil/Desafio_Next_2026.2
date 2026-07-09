@@ -17,6 +17,7 @@ export default function Footer() {
                   src="/logo.jpg"
                   alt="Nação Rubro-Negra"
                   fill
+                  sizes="40px"
                   className="object-cover"
                 />
               </div>

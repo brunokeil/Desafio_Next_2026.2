@@ -583,7 +583,7 @@ export default function LandingPage() {
                   </svg>
                 </span>
               </Link>
-              <a href="#" className="btn-secondary">
+              <Link href="/contato" className="btn-secondary">
                 <svg
                   width="16"
                   height="16"
@@ -598,7 +598,7 @@ export default function LandingPage() {
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
                 Fale Conosco
-              </a>
+              </Link>
             </div>
           </div>
         </div>
