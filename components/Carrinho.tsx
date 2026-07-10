@@ -12,6 +12,30 @@ export default function Carrinho() {
   const [couponInput, setCouponInput] = useState("");
   const [activeCoupon, setActiveCoupon] = useState<{code: string, discountPct: number, freeShipping: boolean} | null>(null);
   const [couponError, setCouponError] = useState("");
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setIsCheckoutLoading(true);
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: cartItems }),
+      });
+      const data = await response.json();
+      
+      if (response.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || "Erro ao processar o pagamento.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Erro de conexão ao tentar processar o pagamento.");
+    } finally {
+      setIsCheckoutLoading(false);
+    }
+  };
 
   const handleApplyCoupon = () => {
     const code = couponInput.trim().toUpperCase();
@@ -218,9 +242,13 @@ export default function Carrinho() {
                 </span>
               </div>
 
-              <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 group hover:shadow-[0_0_20px_rgba(220,38,38,0.3)]">
-                Comprar
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <button 
+                onClick={handleCheckout}
+                disabled={isCheckoutLoading || cartItems.length === 0}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 group hover:shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+              >
+                {isCheckoutLoading ? "Processando..." : "Comprar"}
+                {!isCheckoutLoading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
               </button>
               
               <p className="text-center text-zinc-600 text-[11px] mt-4 max-w-[250px] mx-auto">
