@@ -2,11 +2,64 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { login as loginAction, register as registerAction } from "@/app/actions/auth";
 import Link from "next/link";
 import { BsArrowLeft, BsEye, BsEnvelope, BsPerson, BsArrowRight, BsCheckCircleFill } from "react-icons/bs";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    setLoading(true);
+    setError("");
+    
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+
+    const result = await loginAction(formData);
+    setLoading(false);
+
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      login({ email, name: "Torcedor" }); // Will be re-fetched properly on next load or layout
+      router.push("/");
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password || !name) return;
+    setLoading(true);
+    setError("");
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+
+    const result = await registerAction(formData);
+    setLoading(false);
+
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      login({ email, name });
+      router.push("/");
+    }
+  };
 
   return (
     <div className="relative min-h-screen w-full text-white font-sans overflow-hidden bg-black">
@@ -43,11 +96,13 @@ export default function AuthPage() {
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Bem-vindo de volta.</h1>
-            <p className="text-neutral-400 mb-10 text-sm leading-relaxed">
+            <p className="text-neutral-400 mb-6 text-sm leading-relaxed">
               Entre na sua conta para acompanhar pedidos e aproveitar ofertas exclusivas da nação.
             </p>
 
-            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+            {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm mb-4">{error}</div>}
+
+            <form className="space-y-5" onSubmit={handleLogin}>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-neutral-300">E-mail</label>
                 <div className="relative">
@@ -56,8 +111,10 @@ export default function AuthPage() {
                   </div>
                   <input 
                     type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="voce@email.com" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-9 pr-4 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
                   />
                 </div>
               </div>
@@ -73,8 +130,10 @@ export default function AuthPage() {
                   </div>
                   <input 
                     type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-10 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-9 pr-10 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
                   />
                   <button type="button" className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-500 hover:text-neutral-300">
                     <BsEye />
@@ -90,15 +149,15 @@ export default function AuthPage() {
                 <label htmlFor="remember" className="text-sm text-neutral-300 cursor-pointer select-none">Lembrar de mim neste dispositivo</label>
               </div>
 
-              <button className="w-full bg-[var(--fla-red)] hover:bg-[#b01117] shadow-[0_0_20px_rgba(212,23,30,0.4)] text-white font-semibold py-3.5 rounded-xl transition-all duration-300 mt-4 flex items-center justify-center gap-2 group">
-                Entrar
-                <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
+              <button disabled={loading} className="w-full bg-[var(--fla-red)] hover:bg-[#b01117] shadow-[0_0_20px_rgba(212,23,30,0.4)] text-white font-semibold py-3.5 rounded-xl transition-all duration-300 mt-4 flex items-center justify-center gap-2 group disabled:opacity-50">
+                {loading ? "Entrando..." : "Entrar"}
+                {!loading && <BsArrowRight className="group-hover:translate-x-1 transition-transform" />}
               </button>
             </form>
 
             <p className="text-center text-sm text-neutral-400 mt-8 lg:hidden">
               Ainda não faz parte da nação?{" "}
-              <button onClick={() => setIsLogin(false)} className="text-[var(--fla-red)] hover:underline font-medium">
+              <button onClick={() => { setIsLogin(false); setError(""); setPassword(""); }} className="text-[var(--fla-red)] hover:underline font-medium">
                 Crie sua conta
               </button>
             </p>
@@ -134,11 +193,13 @@ export default function AuthPage() {
             </div>
 
             <h1 className="text-4xl font-bold mb-3 tracking-tight">Faça parte da nação.</h1>
-            <p className="text-neutral-400 mb-8 text-sm leading-relaxed">
+            <p className="text-neutral-400 mb-6 text-sm leading-relaxed">
               Crie sua conta em menos de um minuto e aproveite benefícios exclusivos para torcedores.
             </p>
 
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+            {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm mb-4">{error}</div>}
+
+            <form className="space-y-4" onSubmit={handleRegister}>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-neutral-300">Nome completo</label>
                 <div className="relative">
@@ -147,8 +208,10 @@ export default function AuthPage() {
                   </div>
                   <input 
                     type="text" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Seu nome" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-9 pr-4 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
                   />
                 </div>
               </div>
@@ -161,8 +224,10 @@ export default function AuthPage() {
                   </div>
                   <input 
                     type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="voce@email.com" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-9 pr-4 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
                   />
                 </div>
               </div>
@@ -174,9 +239,11 @@ export default function AuthPage() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                   </div>
                   <input 
-                    type="password" 
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)} 
                     placeholder="Mínimo 8 caracteres" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-10 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-9 pr-10 text-sm focus:outline-none focus:border-[var(--fla-red)] focus:bg-white/10 backdrop-blur-md transition-all placeholder-neutral-500"
                   />
                   <button type="button" className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-500 hover:text-neutral-300">
                     <BsEye />
@@ -196,15 +263,15 @@ export default function AuthPage() {
                 </div>
               </div>
 
-              <button className="w-full bg-[var(--fla-red)] hover:bg-[#b01117] shadow-[0_0_20px_rgba(212,23,30,0.4)] text-white font-semibold py-3.5 rounded-xl transition-all duration-300 mt-4 flex items-center justify-center gap-2 group">
-                Criar conta
-                <BsArrowRight className="group-hover:translate-x-1 transition-transform" />
+              <button disabled={loading} className="w-full bg-[var(--fla-red)] hover:bg-[#b01117] shadow-[0_0_20px_rgba(212,23,30,0.4)] text-white font-semibold py-3.5 rounded-xl transition-all duration-300 mt-4 flex items-center justify-center gap-2 group disabled:opacity-50">
+                {loading ? "Criando conta..." : "Criar conta"}
+                {!loading && <BsArrowRight className="group-hover:translate-x-1 transition-transform" />}
               </button>
             </form>
 
             <p className="text-center text-sm text-neutral-400 mt-6 lg:hidden">
               Já tem conta?{" "}
-              <button onClick={() => setIsLogin(true)} className="text-[var(--fla-red)] hover:underline font-medium">
+              <button onClick={() => { setIsLogin(true); setError(""); setPassword(""); }} className="text-[var(--fla-red)] hover:underline font-medium">
                 Entre aqui
               </button>
             </p>
@@ -233,7 +300,7 @@ export default function AuthPage() {
                 Crie sua conta em menos de um minuto e aproveite benefícios exclusivos como frete grátis, lançamentos antecipados e descontos especiais.
               </p>
               <button 
-                onClick={() => setIsLogin(false)}
+                onClick={() => { setIsLogin(false); setError(""); setPassword(""); }}
                 className="px-10 py-3.5 rounded-full border border-white/40 hover:bg-white hover:text-black hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all font-bold tracking-wide text-sm uppercase"
               >
                 Criar minha conta
@@ -251,7 +318,7 @@ export default function AuthPage() {
                 Entre com seu e-mail e senha para acompanhar seus pedidos, salvar favoritos e receber ofertas em primeira mão.
               </p>
               <button 
-                onClick={() => setIsLogin(true)}
+                onClick={() => { setIsLogin(true); setError(""); setPassword(""); }}
                 className="px-10 py-3.5 rounded-full border border-white/40 hover:bg-white hover:text-black hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all font-bold tracking-wide text-sm uppercase"
               >
                 Entrar agora
