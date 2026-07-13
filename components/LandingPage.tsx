@@ -148,6 +148,27 @@ export default function LandingPage() {
   const mvvSection = useInView(0.1);
   const ctaSection = useInView(0.1);
 
+  const [mvvData, setMvvData] = useState(mvv);
+
+  useEffect(() => {
+    async function fetchIdentities() {
+      try {
+        const res = await fetch("https://treinamentoapi.codejr.com.br/api/identities");
+        const json = await res.json();
+        if (json.status === 200 && json.identities) {
+          const fetchedMvv = mvv.map((item) => {
+            const match = json.identities.find((i: { title: string, text: string }) => i.title === item.title);
+            return match ? { ...item, content: match.text } : item;
+          });
+          setMvvData(fetchedMvv);
+        }
+      } catch (error) {
+        console.error("Failed to fetch identities", error);
+      }
+    }
+    fetchIdentities();
+  }, []);
+
   return (
     <>
       <section
@@ -419,7 +440,7 @@ export default function LandingPage() {
             ref={mvvSection.ref}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {mvv.map((item, i) => (
+            {mvvData.map((item, i) => (
               <div
                 key={item.title}
                 className={`glass-card p-8 text-center ${
