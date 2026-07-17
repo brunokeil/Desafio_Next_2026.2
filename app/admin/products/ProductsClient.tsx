@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from 'react';
-import { Plus, Trash2, Edit2, X, Eye } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Eye, Search } from 'lucide-react';
 import { createProduct, updateProduct, deleteProduct } from '@/app/actions/productActions';
 
 export default function ProductsClient({ initialProducts }: { initialProducts: any[] }) {
   const [products, setProducts] = useState(initialProducts);
+  const [searchQuery, setSearchQuery] = useState('');
   const [modalType, setModalType] = useState<'edit' | 'delete' | 'view' | null>(null);
+
+  const filteredProducts = products.filter(product => 
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (product.category && product.category.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [previewImage, setPreviewImage] = useState<string>('');
 
@@ -43,33 +50,65 @@ export default function ProductsClient({ initialProducts }: { initialProducts: a
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Products</h1>
+    <div className="flex flex-col gap-8">
+      <div>
+        <p className="text-[#E50000] text-[10px] font-bold tracking-[0.2em] uppercase mb-2">Admin</p>
+        <h1 className="text-4xl font-bold text-white tracking-tight mb-2">Gerenciamento de Produtos</h1>
+        <p className="text-neutral-400">Crie, edite e remova produtos da loja.</p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="relative w-full sm:max-w-md">
+          <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
+          <input 
+            type="text" 
+            placeholder="Buscar produto..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#111111] border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-white focus:outline-none focus:border-[#E50000] transition-colors"
+          />
+        </div>
         <button 
           onClick={() => openModal('edit')}
-          className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2"
+          className="w-full sm:w-auto bg-[#E50000] hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          Add Product
+          Novo Produto
         </button>
       </div>
 
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl">
+      <div className="bg-transparent border border-white/10 rounded-2xl overflow-hidden">
         <table className="w-full text-left text-sm text-neutral-300">
-          <thead className="bg-white/5 text-neutral-400 uppercase text-xs">
+          <thead className="bg-transparent border-b border-white/10 text-neutral-500 uppercase text-xs font-semibold tracking-wider">
             <tr>
-              <th className="px-6 py-4 font-medium">Name</th>
-              <th className="px-6 py-4 font-medium">Price</th>
-              <th className="px-6 py-4 font-medium text-right">Actions</th>
+              <th className="px-6 py-4">Produto</th>
+              <th className="px-6 py-4 hidden sm:table-cell">Categoria</th>
+              <th className="px-6 py-4">Preço</th>
+              <th className="px-6 py-4 hidden md:table-cell">Descrição</th>
+              <th className="px-6 py-4 text-right">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <tr key={product.id} className="hover:bg-white/5 transition-colors">
-                <td className="px-6 py-4 font-medium text-white">{product.name}</td>
-                <td className="px-6 py-4">R$ {product.price.toFixed(2)}</td>
-                <td className="px-6 py-4 text-right flex justify-end gap-3">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-4">
+                    {product.imageUrl ? (
+                      <div className="w-12 h-12 rounded-lg bg-[#111111] shrink-0 border border-white/10 flex items-center justify-center p-1.5 overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={product.imageUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-[#111111] shrink-0 border border-white/10" />
+                    )}
+                    <span className="font-medium text-white">{product.name}</span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 hidden sm:table-cell">{product.category || '-'}</td>
+                <td className="px-6 py-4 text-[#E50000] font-medium whitespace-nowrap">R$ {product.price.toFixed(2).replace('.', ',')}</td>
+                <td className="px-6 py-4 hidden md:table-cell text-neutral-400 max-w-xs truncate">{product.description || '-'}</td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-3">
                   <button 
                     onClick={() => openModal('view', product)}
                     className="p-2 hover:bg-white/10 rounded-lg text-neutral-400 hover:text-white transition-colors"
@@ -91,10 +130,10 @@ export default function ProductsClient({ initialProducts }: { initialProducts: a
                 </td>
               </tr>
             ))}
-            {products.length === 0 && (
+            {filteredProducts.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-6 py-8 text-center text-neutral-500">
-                  No products found.
+                <td colSpan={5} className="px-6 py-8 text-center text-neutral-500">
+                  Nenhum produto encontrado.
                 </td>
               </tr>
             )}
