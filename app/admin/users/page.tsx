@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getUsers } from '@/app/actions/userActions';
 import UsersClient from './UsersClient';
 

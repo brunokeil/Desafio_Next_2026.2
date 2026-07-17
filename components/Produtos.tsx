@@ -5,15 +5,20 @@ import Link from "next/link";
 import { useState } from "react";
 import { Heart, Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 
-import { PRODUCTS } from "@/lib/products";
 
 const CATEGORIES = ["Tudo", "Camisas", "Agasalhos", "Shorts", "Acessórios", "Infantil"];
 
-export default function Produtos() {
+export default function Produtos({ initialProducts = [] }: { initialProducts?: any[] }) {
   const [activeCategory, setActiveCategory] = useState("Tudo");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredProducts = PRODUCTS.filter((product) => {
+  const products = initialProducts.map(p => ({
+    ...p,
+    image: p.imageUrl || "/product-1.jpg",
+    badge: p.name.includes("Premium") ? "Premium" : null
+  }));
+
+  const filteredProducts = products.filter((product) => {
     const matchesCategory = activeCategory === "Tudo" || product.category.toLowerCase() === activeCategory.toLowerCase();
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           product.category.toLowerCase().includes(searchQuery.toLowerCase());

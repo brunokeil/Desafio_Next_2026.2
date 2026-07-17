@@ -67,37 +67,6 @@ function AnimatedCounter({
   );
 }
 
-const products = [
-  {
-    id: 1,
-    name: "Camisa Oficial I 2025",
-    price: 349.9,
-    image: "/product-1.jpg",
-    tag: "Mais Vendido",
-  },
-  {
-    id: 2,
-    name: "Camisa Oficial II 2025",
-    price: 329.9,
-    image: "/product-2.jpg",
-    tag: "Novo",
-  },
-  {
-    id: 3,
-    name: "Agasalho Treino",
-    price: 449.9,
-    image: "/product-3.jpg",
-    tag: null,
-  },
-  {
-    id: 4,
-    name: "Shorts Oficial",
-    price: 179.9,
-    image: "/product-4.jpg",
-    tag: null,
-  },
-];
-
 const stats = [
   { value: 45, suffix: "M+", label: "Torcedores" },
   { value: 8, suffix: "x", label: "Campeão Brasileiro" },
@@ -141,7 +110,12 @@ const mvv = [
   },
 ];
 
-export default function LandingPage() {
+export default function LandingPage({ initialProducts = [] }: { initialProducts?: any[] }) {
+  const products = initialProducts.map(p => ({
+    ...p,
+    image: p.imageUrl || "/product-1.jpg",
+    tag: p.name.includes("Premium") ? "Premium" : null
+  }));
   const heroSection = useInView(0.1);
   const productsSection = useInView(0.1);
   const aboutSection = useInView(0.1);
