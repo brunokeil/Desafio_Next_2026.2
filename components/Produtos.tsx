@@ -83,7 +83,7 @@ export default function Produtos() {
               key={product.id} 
               className="group bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden flex flex-col hover:border-red-900 transition-all duration-300"
             >
-              <div className="relative aspect-[4/5] bg-zinc-900 overflow-hidden p-6 flex items-center justify-center">
+              <div className="relative aspect-[4/3] bg-zinc-900 overflow-hidden p-6 flex items-center justify-center">
                 
                 {product.badge && (
                   <div className="absolute top-4 left-4 z-10 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">

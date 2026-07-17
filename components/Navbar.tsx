@@ -98,6 +98,12 @@ export default function Navbar() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                     Meus Pedidos
                   </Link>
+                  {user?.email === 'admin@admin.com' && (
+                    <Link href="/admin" className="px-5 py-2.5 text-sm text-[var(--fla-red)] hover:text-white hover:bg-[var(--fla-red)]/20 transition-colors flex items-center gap-3 font-semibold">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                      Admin Dashboard
+                    </Link>
+                  )}
                   <button 
                     onClick={() => {
                       logout();
@@ -186,6 +192,16 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
+          {user?.email === 'admin@admin.com' && (
+            <Link
+              href="/admin"
+              onClick={() => setMobileOpen(false)}
+              className="px-4 py-3 text-sm font-medium text-[var(--fla-red)] hover:text-white hover:bg-[var(--fla-red)]/20 rounded-lg transition-all duration-300 flex items-center gap-2"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+              Admin Dashboard
+            </Link>
+          )}
           <Link
             href="/carrinho"
             onClick={() => setMobileOpen(false)}

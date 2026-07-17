@@ -94,7 +94,7 @@ export default function ProductClient({ product }: { product: Product }) {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
           
           <div className="w-full lg:w-1/2 flex-shrink-0">
-            <div className="relative aspect-[4/5] bg-zinc-900/50 border border-zinc-800 rounded-[2rem] overflow-hidden flex items-center justify-center p-8 group">
+            <div className="relative aspect-[4/3] bg-zinc-900/50 border border-zinc-800 rounded-[2rem] overflow-hidden flex items-center justify-center p-8 group">
               
               {product.badge && (
                 <div className="absolute top-6 left-6 z-10 bg-red-600 text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.4)]">

@@ -348,7 +348,7 @@ export default function LandingPage() {
                     : "0ms",
                 }}
               >
-                <div className="relative aspect-[3/4] overflow-hidden rounded-t-2xl">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl">
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -531,7 +531,7 @@ export default function LandingPage() {
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[var(--fla-red)]/10 to-[var(--fla-gold)]/5 blur-3xl scale-110" />
 
                 <Link href="/produtos/1" className="glass-card overflow-hidden animate-float relative block cursor-pointer group hover:border-[var(--fla-red)] transition-colors">
-                  <div className="relative aspect-[3/4]">
+                  <div className="relative aspect-[4/3]">
                     <Image
                       src="/product-1.jpg"
                       alt="Camisa Oficial"
