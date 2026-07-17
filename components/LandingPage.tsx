@@ -309,9 +309,10 @@ export default function LandingPage({ initialProducts = [] }: { initialProducts?
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product, i) => (
-              <div
+              <Link
+                href={`/produtos/${product.id}`}
                 key={product.id}
-                className={`glass-card group cursor-pointer ${
+                className={`glass-card group cursor-pointer block ${
                   productsSection.inView
                     ? `animate-fade-in-up delay-${(i + 1) * 100} opacity-100`
                     : "opacity-0"
@@ -338,9 +339,9 @@ export default function LandingPage({ initialProducts = [] }: { initialProducts?
                   )}
 
                   <div className="absolute bottom-4 left-4 right-4 opacity-0 translate-y-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-                    <button className="w-full py-3 text-sm font-semibold text-white bg-[var(--fla-red)]/90 backdrop-blur-md rounded-xl hover:bg-[var(--fla-red)] transition-colors">
+                    <div className="w-full py-3 text-sm font-semibold text-white bg-[var(--fla-red)]/90 backdrop-blur-md rounded-xl text-center">
                       Ver Mais
-                    </button>
+                    </div>
                   </div>
                 </div>
 
@@ -356,7 +357,7 @@ export default function LandingPage({ initialProducts = [] }: { initialProducts?
                     {(product.price / 10).toFixed(2).replace(".", ",")}
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
