@@ -11,7 +11,7 @@ interface Product {
   category: string;
   name: string;
   description: string;
-  price: string;
+  price: number;
   image: string;
   badge: string | null;
 }
@@ -72,7 +72,7 @@ export default function ProductClient({ product }: { product: Product }) {
       category: product.category,
       name: product.name,
       size: selectedSize,
-      price: parseFloat(product.price.replace("R$ ", "").replace(".", "").replace(",", ".")),
+      price: product.price,
       quantity: quantity,
       image: product.image,
     });
@@ -146,7 +146,7 @@ export default function ProductClient({ product }: { product: Product }) {
               </div>
               
               <div className="text-3xl font-bold text-white mb-6">
-                {product.price}
+                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
                 <span className="text-sm font-normal text-zinc-500 ml-3">em até 10x sem juros</span>
               </div>
               <p className="text-zinc-400 text-lg leading-relaxed mb-8">

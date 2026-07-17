@@ -122,9 +122,9 @@ export default function Produtos({ initialProducts = [] }: { initialProducts?: a
                 </p>
                 
                 <div className="mt-auto">
-                  <div className="text-red-500 font-bold text-xl mb-4">
-                    {product.price}
-                  </div>
+                  <span className="text-xl font-black text-white mb-4 block">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                  </span>
                   <Link href={`/produtos/${product.id}`} className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_20px_rgba(220,38,38,0.3)]">
                     Ver Mais
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
