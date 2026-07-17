@@ -9,36 +9,7 @@ import Link from "next/link";
 import { BsBoxSeam, BsClockHistory, BsCheckCircleFill, BsTruck } from "react-icons/bs";
 import { useCart } from "@/context/CartContext";
 
-const MOCK_PEDIDOS = [
-  {
-    id: "PED-84729103",
-    date: "12/06/2026",
-    status: "delivered",
-    total: 349.90,
-    items: [
-      { id: 1, category: "camisas", name: "Camisa Flamengo Oficial I 2024", size: "M", quantity: 1, price: 349.90, image: "" }
-    ]
-  },
-  {
-    id: "PED-92837411",
-    date: "28/05/2026",
-    status: "in_transit",
-    total: 459.80,
-    items: [
-      { id: 2, category: "agasalhos", name: "Jaqueta Hino Flamengo", size: "G", quantity: 1, price: 399.90, image: "" },
-      { id: 3, category: "acessorios", name: "Boné Flamengo Aba Curva", size: "Único", quantity: 1, price: 59.90, image: "" }
-    ]
-  },
-  {
-    id: "PED-10293847",
-    date: "15/04/2026",
-    status: "payment_pending",
-    total: 299.90,
-    items: [
-      { id: 4, category: "camisas", name: "Manto Sagrado Personalizado", size: "P", quantity: 1, price: 299.90, image: "" }
-    ]
-  }
-];
+import { getUserOrders } from "@/app/actions/orderActions";
 
 const StatusBadge = ({ status }: { status: string }) => {
   switch (status) {
@@ -59,32 +30,33 @@ export default function PedidosPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [orders, setOrders] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      getUserOrders().then(setOrders);
+    }
+  }, [user]);
 
   const handleComprarNovamente = (items: any[]) => {
-    items.forEach(item => addToCart(item));
+    items.forEach(item => addToCart({
+      id: item.productId,
+      category: item.product.category || "Tudo",
+      name: item.product.name,
+      size: item.size || "M",
+      price: item.price,
+      quantity: item.quantity,
+      image: item.product.imageUrl || "/product-1.jpg"
+    }));
     router.push("/carrinho");
   };
 
-  const handlePagarAgora = async (items: any[]) => {
+  const handlePagarAgora = async (pedidoId: string) => {
     setIsProcessing(true);
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error || "Erro ao processar pagamento");
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Erro de conexão.");
-    } finally {
-      setIsProcessing(false);
-    }
+    // Simulate payment processing
+    setTimeout(() => {
+      window.location.href = `/sucesso?orderId=${pedidoId}`;
+    }, 1000);
   };
 
   useEffect(() => {
@@ -110,7 +82,14 @@ export default function PedidosPage() {
         </div>
 
         <div className="space-y-6">
-          {MOCK_PEDIDOS.map((pedido) => (
+          {orders.length === 0 ? (
+            <div className="text-center py-12 bg-white/5 border border-white/10 rounded-2xl">
+              <p className="text-neutral-400 mb-4">Você ainda não tem nenhum pedido.</p>
+              <Link href="/produtos" className="px-6 py-3 border border-white/20 rounded-xl hover:bg-white hover:text-black transition-colors font-medium">
+                Ver produtos
+              </Link>
+            </div>
+          ) : orders.map((pedido) => (
             <div key={pedido.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-colors">
               <div className="px-6 py-4 bg-white/[0.02] border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -121,7 +100,7 @@ export default function PedidosPage() {
                   <div className="hidden sm:block w-px h-8 bg-white/10"></div>
                   <div>
                     <p className="text-xs text-neutral-500 font-medium uppercase tracking-wider mb-1">Data</p>
-                    <p className="font-medium text-sm md:text-base">{pedido.date}</p>
+                    <p className="font-medium text-sm md:text-base">{new Date(pedido.createdAt).toLocaleDateString('pt-BR')}</p>
                   </div>
                   <div className="hidden sm:block w-px h-8 bg-white/10"></div>
                   <div>
@@ -139,7 +118,7 @@ export default function PedidosPage() {
               
               <div className="p-6">
                 <div className="space-y-4">
-                  {pedido.items.map((item) => (
+                  {pedido.items.map((item: any) => (
                     <div key={item.id} className="flex items-center gap-4">
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/5 flex-shrink-0 border border-white/5">
                         <div className="absolute inset-0 flex items-center justify-center text-neutral-600">
@@ -147,8 +126,8 @@ export default function PedidosPage() {
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm md:text-base text-neutral-200 truncate">{item.name}</p>
-                        <p className="text-sm text-neutral-500 mt-0.5">Qtd: {item.quantity}</p>
+                        <p className="font-medium text-sm md:text-base text-neutral-200 truncate">{item.product.name}</p>
+                        <p className="text-sm text-neutral-500 mt-0.5">Tamanho: {item.size} | Qtd: {item.quantity}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-sm md:text-base">
@@ -174,7 +153,7 @@ export default function PedidosPage() {
                   {pedido.status === 'payment_pending' && (
                     <button 
                       disabled={isProcessing}
-                      onClick={() => handlePagarAgora(pedido.items)}
+                      onClick={() => handlePagarAgora(pedido.id)}
                       className="px-5 py-2.5 text-sm font-medium rounded-xl bg-green-600 text-white hover:bg-green-700 transition-colors shadow-[0_0_15px_rgba(22,163,74,0.3)] disabled:opacity-50"
                     >
                       {isProcessing ? "Processando..." : "Pagar agora"}
