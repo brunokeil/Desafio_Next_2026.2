@@ -71,7 +71,7 @@ export async function POST(request: Request) {
         { type: "BOLETO" },
         { type: "PIX" }
       ],
-      redirect_url: `http://localhost:3000/sucesso?orderId=${order.id}`, 
+      redirect_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.nacaorn.com.br'}/sucesso?orderId=${order.id}`, 
     };
 
     const response = await fetch(baseUrl, {
