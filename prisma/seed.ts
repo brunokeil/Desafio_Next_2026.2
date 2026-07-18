@@ -31,6 +31,7 @@ async function main() {
       price: Number((Math.random() * 300 + 50).toFixed(2)), // Random price between 50 and 350
       stock: Math.floor(Math.random() * 100) + 5,
       imageUrl: `/product-${(i % 4) + 1}.jpg`,
+      category: category,
     };
   });
 
