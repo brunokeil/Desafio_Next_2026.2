@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       data: {
         userId: session.userId,
         total: total,
-        status: "payment_pending",
+        status: "confirmed",
         items: {
           create: items.map((item: any) => ({
             productId: item.id,
@@ -44,7 +44,59 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json({ url: `/sucesso?orderId=${order.id}` });
+    const pagseguroToken = process.env.PAGSEGURO_TOKEN;
+    if (!pagseguroToken) {
+      console.warn("PAGSEGURO_TOKEN não configurado. Redirecionando para sucesso.");
+      return NextResponse.json({ url: `/sucesso?orderId=${order.id}` });
+    }
+
+    const isSandbox = process.env.NODE_ENV !== 'production' || process.env.PAGSEGURO_ENV === 'sandbox';
+    const baseUrl = isSandbox 
+      ? 'https://sandbox.api.pagseguro.com/checkouts'
+      : 'https://api.pagseguro.com/checkouts';
+
+    const formattedItems = items.map((item: any) => ({
+      reference_id: String(item.id),
+      name: String(item.name).substring(0, 64),
+      quantity: item.quantity,
+      unit_amount: Math.round(item.price * 100),
+    }));
+
+    const body = {
+      reference_id: String(order.id),
+      items: formattedItems,
+      customer_modifiable: true,
+      payment_methods: [
+        { type: "CREDIT_CARD" },
+        { type: "BOLETO" },
+        { type: "PIX" }
+      ],
+      redirect_url: `http://localhost:3000/sucesso?orderId=${order.id}`, 
+    };
+
+    const response = await fetch(baseUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${pagseguroToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Erro na resposta do PagSeguro:", data);
+      return NextResponse.json({ url: `/sucesso?orderId=${order.id}` });
+    }
+
+    const checkoutUrl = data.links?.find((link: any) => link.rel === 'PAY')?.href;
+
+    if (!checkoutUrl) {
+      return NextResponse.json({ url: `/sucesso?orderId=${order.id}` });
+    }
+
+    return NextResponse.json({ url: checkoutUrl });
   } catch (error) {
     console.error("Erro interno ao criar checkout:", error);
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
