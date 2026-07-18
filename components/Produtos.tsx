@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 
 
@@ -11,6 +11,12 @@ const CATEGORIES = ["Tudo", "Camisas", "Agasalhos", "Shorts", "Acessórios", "In
 export default function Produtos({ initialProducts = [] }: { initialProducts?: any[] }) {
   const [activeCategory, setActiveCategory] = useState("Tudo");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery]);
 
   const products = initialProducts.map(p => ({
     ...p,
@@ -19,11 +25,18 @@ export default function Produtos({ initialProducts = [] }: { initialProducts?: a
   }));
 
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = activeCategory === "Tudo" || product.category.toLowerCase() === activeCategory.toLowerCase();
+    const category = product.category || "";
+    const matchesCategory = activeCategory === "Tudo" || category.toLowerCase() === activeCategory.toLowerCase();
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          product.category.toLowerCase().includes(searchQuery.toLowerCase());
+                          category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <main className="flex-1 bg-black text-white pt-32 pb-24">
@@ -79,11 +92,11 @@ export default function Produtos({ initialProducts = [] }: { initialProducts?: a
 
         <div className="flex justify-between items-center text-zinc-400 text-sm mb-8 border-b border-zinc-900 pb-4">
           <span>{filteredProducts.length} produtos</span>
-          <span>Página 1 de 2</span>
+          <span>Página {totalPages > 0 ? currentPage : 0} de {totalPages}</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
-          {filteredProducts.map((product) => (
+          {paginatedProducts.map((product) => (
             <div 
               key={product.id} 
               className="group bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden flex flex-col hover:border-red-900 transition-all duration-300"
@@ -135,18 +148,35 @@ export default function Produtos({ initialProducts = [] }: { initialProducts?: a
           ))}
         </div>
 
-        {filteredProducts.length > 0 && (
+        {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2">
-            <button className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button className="w-10 h-10 rounded-full flex items-center justify-center bg-red-600 text-white font-medium shadow-[0_0_15px_rgba(220,38,38,0.3)]">
-              1
-            </button>
-            <button className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors">
-              2
-            </button>
-            <button className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors">
+            
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button 
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                  currentPage === i + 1 
+                    ? "bg-red-600 text-white font-medium shadow-[0_0_15px_rgba(220,38,38,0.3)]" 
+                    : "border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
