@@ -19,6 +19,8 @@ const StatusBadge = ({ status }: { status: string }) => {
       return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20"><BsTruck /> Em Trânsito</span>;
     case 'payment_pending':
       return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"><BsClockHistory /> Aguardando Pagamento</span>;
+    case 'confirmed':
+      return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"><BsCheckCircleFill /> Pago</span>;
     default:
       return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-neutral-500/10 text-neutral-400 border border-neutral-500/20">Desconhecido</span>;
   }
