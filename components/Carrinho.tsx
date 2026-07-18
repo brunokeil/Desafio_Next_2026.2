@@ -8,7 +8,7 @@ import { Trash2, Plus, Minus, Tag, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 export default function Carrinho() {
-  const { cartItems, updateQuantity, removeFromCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
   const [couponInput, setCouponInput] = useState("");
   const [activeCoupon, setActiveCoupon] = useState<{code: string, discountPct: number, freeShipping: boolean} | null>(null);
   const [couponError, setCouponError] = useState("");
@@ -25,6 +25,7 @@ export default function Carrinho() {
       const data = await response.json();
       
       if (response.ok && data.url) {
+        clearCart();
         window.location.href = data.url;
       } else {
         alert(data.error || "Erro ao processar o pagamento.");
