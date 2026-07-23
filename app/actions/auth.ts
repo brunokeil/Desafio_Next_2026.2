@@ -1,9 +1,9 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { createSession, deleteSession, decrypt } from "@/lib/session";
 import { cookies } from "next/headers";
-import bcrypt from "bcryptjs";
+
+const API_URL = "http://treinamentoapi.codejr.com.br/api";
 
 export async function register(formData: FormData) {
   const name = formData.get("name") as string;
@@ -14,24 +14,31 @@ export async function register(formData: FormData) {
     return { error: "Todos os campos são obrigatórios." };
   }
 
-  const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) {
-    return { error: "E-mail já está em uso." };
+  try {
+    const res = await fetch(`${API_URL}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok || json.status !== 201) {
+      return { error: json.message || "Erro ao registrar usuário." };
+    }
+
+    await createSession(json.user.id, json.user.email, json.user.name, null);
+    
+    const cookieStore = await cookies();
+    cookieStore.set("auth_token", json.token, { httpOnly: true, path: "/" });
+
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro de conexão com a API." };
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-    },
-  });
-
-  await createSession(user.id, user.email, user.name, user.photo);
-
-  return { success: true };
 }
 
 export async function login(formData: FormData) {
@@ -42,23 +49,37 @@ export async function login(formData: FormData) {
     return { error: "E-mail e senha são obrigatórios." };
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    return { error: "Credenciais inválidas." };
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok || (json.status !== 200 && json.status !== 201)) {
+      return { error: json.message || "Credenciais inválidas." };
+    }
+
+    await createSession(json.user.id, json.user.email, json.user.name, null);
+    
+    const cookieStore = await cookies();
+    cookieStore.set("auth_token", json.token, { httpOnly: true, path: "/" });
+
+    return { success: true };
+  } catch (error) {
+    return { error: "Erro de conexão com a API." };
   }
-
-  const isValidPassword = await bcrypt.compare(password, user.password);
-  if (!isValidPassword) {
-    return { error: "Credenciais inválidas." };
-  }
-
-  await createSession(user.id, user.email, user.name, user.photo);
-
-  return { success: true };
 }
 
 export async function logout() {
   await deleteSession();
+  const cookieStore = await cookies();
+  cookieStore.delete("auth_token");
   return { success: true };
 }
 
